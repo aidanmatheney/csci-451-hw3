@@ -27,10 +27,11 @@ INCLUDE_DIR =
 STATIC_LIBRARIES =
 SHARED_LIBRARIES =
 
-# compiler and compiler flags
+# compiler and linker flags
 CXXFLAGS = -std=c++11 -Werror -Wall -Wextra
 CFLAGS   = -std=c11 -Werror -Wall -Wextra
 O        = -O3
+LDFLAGS  =
 
 # ------------------------------------------------------------------------------
 # Color Functions
@@ -364,7 +365,7 @@ $(MAKEFILE_USER):
 	@echo "# install prefix" 				>> $(MAKEFILE_USER)
 	@echo "PREFIX ?=" 						>> $(MAKEFILE_USER)
 	@echo 									>> $(MAKEFILE_USER)
-	@cat Makefile | head -33 | tail -17		>> $(MAKEFILE_USER)
+	@cat Makefile | head -n 34 | tail -n 18	>> $(MAKEFILE_USER)
 
 # create directories
 $(SDIR):
