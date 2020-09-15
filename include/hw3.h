@@ -1,3 +1,7 @@
 #pragma once
 
-void hw3(void);
+#include "./util/result.h"
+
+DECLARE_VOID_RESULT(HW3Result, int)
+
+HW3Result hw3(char const *textUrl);
