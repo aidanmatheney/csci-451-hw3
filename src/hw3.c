@@ -13,22 +13,19 @@
 #include <stdio.h>
 #include <pthread.h>
 
-struct CountWordOccurrencesThreadStartArg {
+struct PrintWordCountThreadStartArg {
+    char const *word;
     WordSearcher wordSearcher;
     char const *text;
-
-    unsigned int *returnWordCountPtr;
 };
 
 struct HW3WordData {
-    char const *word;
     WordSearcher wordSearcher;
-    unsigned int wordCount;
-    struct CountWordOccurrencesThreadStartArg countWordOccurrencesThreadStartArg;
-    pthread_t countWordOccurrencesThreadId;
+    struct PrintWordCountThreadStartArg printWordCountThreadStartArg;
+    pthread_t printWordCountThreadId;
 };
 
-static void *countWordOccurrencesThreadStart(void *argAsVoidPtr);
+static void *printWordCountThreadStart(void *argAsVoidPtr);
 
 DEFINE_VOID_RESULT(HW3Result, int)
 
@@ -61,18 +58,16 @@ HW3Result hw3(char const * const textUrl) {
         char const * const word = words[i];
         struct HW3WordData * const wordDataPtr = &wordDatas[i];
 
-        wordDataPtr->word = word;
-
         wordDataPtr->wordSearcher = WordSearcher_create(word, true);
 
-        wordDataPtr->countWordOccurrencesThreadStartArg.wordSearcher = wordDataPtr->wordSearcher;
-        wordDataPtr->countWordOccurrencesThreadStartArg.text = text;
-        wordDataPtr->countWordOccurrencesThreadStartArg.returnWordCountPtr = &wordDataPtr->wordCount;
+        wordDataPtr->printWordCountThreadStartArg.word = word;
+        wordDataPtr->printWordCountThreadStartArg.wordSearcher = wordDataPtr->wordSearcher;
+        wordDataPtr->printWordCountThreadStartArg.text = text;
 
-        wordDataPtr->countWordOccurrencesThreadId = safePthreadCreate(
+        wordDataPtr->printWordCountThreadId = safePthreadCreate(
             NULL,
-            countWordOccurrencesThreadStart,
-            &wordDataPtr->countWordOccurrencesThreadStartArg,
+            printWordCountThreadStart,
+            &wordDataPtr->printWordCountThreadStartArg,
             "hw3"
         );
     }
@@ -80,28 +75,20 @@ HW3Result hw3(char const * const textUrl) {
     for (size_t i = 0; i < ARRAY_LENGTH(words); i += 1) {
         struct HW3WordData * const wordDataPtr = &wordDatas[i];
 
-        safePthreadJoin(wordDataPtr->countWordOccurrencesThreadId, "hw3");
+        safePthreadJoin(wordDataPtr->printWordCountThreadId, "hw3");
         WordSearcher_destroy(wordDataPtr->wordSearcher);
     }
 
     free(text);
 
-    for (size_t i = 0; i < ARRAY_LENGTH(words); i += 1) {
-        struct HW3WordData * const wordDataPtr = &wordDatas[i];
-
-        printf("\"%s\" occurrence count: %u\n", wordDataPtr->word, wordDataPtr->wordCount);
-    }
-
     return HW3Result_success();
 }
 
-static void *countWordOccurrencesThreadStart(void * const argAsVoidPtr) {
-    struct CountWordOccurrencesThreadStartArg * const argPtr = (
-        (struct CountWordOccurrencesThreadStartArg *)argAsVoidPtr
-    );
+static void *printWordCountThreadStart(void * const argAsVoidPtr) {
+    struct PrintWordCountThreadStartArg * const argPtr = argAsVoidPtr;
 
     unsigned int const wordCount = WordSearcher_countOccurrences(argPtr->wordSearcher, argPtr->text);
+    printf("\"%s\" count: %u\n", argPtr->word, wordCount);
 
-    *argPtr->returnWordCountPtr = wordCount;
     return NULL;
 }
