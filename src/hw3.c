@@ -19,7 +19,7 @@ struct PrintWordCountThreadStartArg {
     char const *text;
 };
 
-struct HW3WordData {
+struct HW3ThreadInfo {
     WordSearcher wordSearcher;
     struct PrintWordCountThreadStartArg printWordCountThreadStartArg;
     pthread_t printWordCountThreadId;
@@ -53,30 +53,30 @@ HW3Result hw3(char const * const textUrl) {
         "polar"
     };
 
-    struct HW3WordData wordDatas[ARRAY_LENGTH(words)];
+    struct HW3ThreadInfo threadInfos[ARRAY_LENGTH(words)];
     for (size_t i = 0; i < ARRAY_LENGTH(words); i += 1) {
         char const * const word = words[i];
-        struct HW3WordData * const wordDataPtr = &wordDatas[i];
+        struct HW3ThreadInfo * const threadInfoPtr = &threadInfos[i];
 
-        wordDataPtr->wordSearcher = WordSearcher_create(word, true);
+        threadInfoPtr->wordSearcher = WordSearcher_create(word, true);
 
-        wordDataPtr->printWordCountThreadStartArg.word = word;
-        wordDataPtr->printWordCountThreadStartArg.wordSearcher = wordDataPtr->wordSearcher;
-        wordDataPtr->printWordCountThreadStartArg.text = text;
+        threadInfoPtr->printWordCountThreadStartArg.word = word;
+        threadInfoPtr->printWordCountThreadStartArg.wordSearcher = threadInfoPtr->wordSearcher;
+        threadInfoPtr->printWordCountThreadStartArg.text = text;
 
-        wordDataPtr->printWordCountThreadId = safePthreadCreate(
+        threadInfoPtr->printWordCountThreadId = safePthreadCreate(
             NULL,
             printWordCountThreadStart,
-            &wordDataPtr->printWordCountThreadStartArg,
+            &threadInfoPtr->printWordCountThreadStartArg,
             "hw3"
         );
     }
 
     for (size_t i = 0; i < ARRAY_LENGTH(words); i += 1) {
-        struct HW3WordData * const wordDataPtr = &wordDatas[i];
+        struct HW3ThreadInfo * const threadInfoPtr = &threadInfos[i];
 
-        safePthreadJoin(wordDataPtr->printWordCountThreadId, "hw3");
-        WordSearcher_destroy(wordDataPtr->wordSearcher);
+        safePthreadJoin(threadInfoPtr->printWordCountThreadId, "hw3");
+        WordSearcher_destroy(threadInfoPtr->wordSearcher);
     }
 
     free(text);
