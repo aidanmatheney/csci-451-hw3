@@ -12,7 +12,7 @@ INCLUDE_DIR =
 
 # static and shared libraries to be linked (space separated values)
 STATIC_LIBRARIES =
-SHARED_LIBRARIES =
+SHARED_LIBRARIES = pthread
 
 # compiler and compiler flags
 # To find disabled gcc warnings, run `gcc EXISTING_FLAGS_HERE -Q --help=warning`

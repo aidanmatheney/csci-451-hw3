@@ -60,7 +60,7 @@ void safeExecvp(
         int const execErrorCode = errno;
         char const * const execErrorMessage = strerror(execErrorCode);
 
-         abortWithErrorFmt(
+        abortWithErrorFmt(
             "%s: Failed to replace process using execvp (error code: %d; error message: \"%s\")",
             callerDescription,
             execErrorCode,
